@@ -46,6 +46,7 @@ public class CountryController {
 		 * with the specified country code.
 		 */
 		Optional<CountryEntity> countryEntity = mapper.selectByPrimaryKey(countrySearchForm.getMstCountryCD());
+		//Optional<CountryEntity> countryEntity = mapper.selectByPrimaryKey("");
 		if (countryEntity == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}

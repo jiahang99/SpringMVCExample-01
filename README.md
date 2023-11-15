@@ -44,3 +44,19 @@ mock db data
 https://generatedata.com/
 
 
+
+Lombok download
+
+https://projectlombok.org/download
+
+
+config with sts
+
+
+# SpringToolSuite4.ini
+
+insert with last row
+
+-javaagent:d:\soft\lombok.jar
+
+
