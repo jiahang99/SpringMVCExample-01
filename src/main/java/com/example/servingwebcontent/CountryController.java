@@ -1,19 +1,23 @@
 package com.example.servingwebcontent;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.servingwebcontent.entity.CountryEntity;
+import com.example.servingwebcontent.form.CountryAddForm;
 import com.example.servingwebcontent.form.CountrySearchForm;
 import com.example.servingwebcontent.repository.CountryEntityMapper;
 import com.google.gson.Gson;
@@ -24,47 +28,123 @@ public class CountryController {
 	@Autowired
 	private CountryEntityMapper mapper;
 
+	/**
+	 * 初期表示
+	 * 
+	 * @param countrySearchForm 検索Form
+	 * @return
+	 */
 	@GetMapping("/country")
 	public String init(CountrySearchForm countrySearchForm) {
-
 		return "country/country";
 	}
 
 	/**
-	 * Represents a sequence of characters. In this context, it is used to return a
-	 * JSON representation of a CountryEntity object.
+	 * 検索
+	 * 
+	 * @param countrySearchForm 検索Form
+	 * @param bindingResult
+	 * @return
 	 */
 	@PostMapping("/country/getCountry")
 	@ResponseBody
 	public String getCountry(@Validated CountrySearchForm countrySearchForm, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+			String err = bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage)
+					.collect(Collectors.joining("\r\n"));
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, err);
 		}
 
-		/**
-		 * Optional object containing the result of the database query for the country
-		 * with the specified country code.
-		 */
-		Optional<CountryEntity> countryEntity = mapper.selectByPrimaryKey(countrySearchForm.getMstCountryCD());
-		//Optional<CountryEntity> countryEntity = mapper.selectByPrimaryKey("");
-		if (countryEntity == null) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		// service
+		// レコード取得
+		Optional<CountryEntity> customerEntity = mapper.selectByPrimaryKey(countrySearchForm.getMstCountryCD());
+		if (!customerEntity.isPresent()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "CountryCode存在しない");
 		}
 
-		return new Gson().toJson(countryEntity.get());
+		return new Gson().toJson(customerEntity.get());
 	}
 
-	/*
-	 * 创建一个方法，监听/country/createCountry，
-	 * 实现根据请求的参数创建一个CountryEntity对象，并将其插入到数据库中。
+	/**
+	 * 新規
+	 * 
+	 * @param countryAddForm 検索Form
+	 * @param bindingResult
+	 * @param model
+	 * @return
 	 */
-	@PostMapping("/country/createCountry")
+	@PostMapping("/country/add")
 	@ResponseBody
-	public String createCountry(@RequestBody CountryEntity countryEntity) {
-		// Method body goes here
-		// For example, you might save the countryEntity to the database
-		// Then return a success message or the saved entity
-		return "Country created successfully";
+	public String add(@Validated CountryAddForm countryAddForm, BindingResult bindingResult, Model model) {
+		if (bindingResult.hasErrors()) {
+			String err = bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage)
+					.collect(Collectors.joining("\r\n"));
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, err);
+		}
+
+		// service
+		// 存在チェック
+		Optional<CountryEntity> customerEntity = mapper.selectByPrimaryKey(countryAddForm.getMstcountrycd());
+		if (customerEntity.isPresent()) {
+			throw new ResponseStatusException(HttpStatus.FOUND, "CountryCode存在");
+		}
+
+		// 登録
+		CountryEntity countryEntity = new CountryEntity();
+		BeanUtils.copyProperties(countryAddForm, countryEntity);
+		mapper.insert(countryEntity);
+
+		return new Gson().toJson("success");
+	}
+
+	/**
+	 * 更新
+	 * 
+	 * @param countryAddForm 検索Form
+	 * @param bindingResult
+	 * @param model
+	 * @return
+	 */
+	@PostMapping("/country/update")
+	@ResponseBody
+	public String update(@Validated CountryAddForm countryAddForm, BindingResult bindingResult, Model model) {
+		if (bindingResult.hasErrors()) {
+			String err = bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage)
+					.collect(Collectors.joining("\r\n"));
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, err);
+		}
+
+		// service
+		// 更新
+		CountryEntity countryEntity = new CountryEntity();
+		BeanUtils.copyProperties(countryAddForm, countryEntity);
+		mapper.updateByPrimaryKey(countryEntity);
+
+		return new Gson().toJson("success");
+	}
+
+	/**
+	 * 削除
+	 * 
+	 * @param countryAddForm 検索Form
+	 * @param bindingResult
+	 * @param model
+	 * @return
+	 */
+	@PostMapping("/country/delete")
+	@ResponseBody
+	public String delete(@Validated CountryAddForm countryAddForm, BindingResult bindingResult, Model model) {
+		if (bindingResult.hasErrors()) {
+			String err = bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage)
+					.collect(Collectors.joining("\r\n"));
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, err);
+		}
+
+		// service
+		// 削除
+		mapper.deleteByPrimaryKey(countryAddForm.getMstcountrycd());
+
+		return new Gson().toJson("success");
 	}
 
 }
