@@ -17,10 +17,11 @@ $(document).ready(function() {
 		$("#updateBtn").css("display", "none");
 		// hide the deleteBtn
 		$("#deleteBtn").css("display", "none");
-		// show the inputCountryCd
+		// show the CountryCd
 		$("#inputCountryCd").css("display", "block");
 		// show the mstcountrycd
 		$("#mstcountrycd").css("display", "block");
+		// 新規画面初期化
 		$("#mstcountrycd").val('');
 		$("#mstcountrynanme").val('');
 	});
@@ -37,6 +38,7 @@ $(document).ready(function() {
 		$("#updateBtn").css("display", "block");
 		// hide the deleteBtn
 		$("#deleteBtn").css("display", "none");
+		// 変更画面初期化
 		$("#queryInput").val('');
 		$("#mstcountrycd").val('');
 		$("#mstcountrynanme").val('');
@@ -57,6 +59,7 @@ $(document).ready(function() {
 		$("#updateBtn").css("display", "none");
 		// show the deleteBtn
 		$("#deleteBtn").css("display", "block");
+		// 削除画面初期化
 		$("#queryInput").val('');
 		$("#mstcountrycd").val('');
 		$("#mstcountrynanme").val('');
@@ -77,11 +80,13 @@ $(document).ready(function() {
 			data: $("#frmSearch").serialize(),
 			dataType: 'json',
 			success: function(data) {
+				
 				$("#detailContains").css("display", "block");
 				$("#inputCountryCd").css("display", "none");
 				$("#mstcountrycd").css("display", "none");
+				// disabled queryInput
 				$("#queryInput").prop("disabled", true);
-				// show the data in the detailContains
+				// show data
 				$("#mstcountrycd").val(data.mstcountrycd);
 				$("#mstcountrynanme").val(data.mstcountrynanme);
 			},
@@ -136,7 +141,7 @@ $(document).ready(function() {
 			success: function() {
 				// hide the detailContains
 				$("#detailContains").css("display", "none");
-				alert('successqq');
+				alert('success');
 			},
 			error: function(e) {
 				alert(e.responseJSON.message);
@@ -153,14 +158,10 @@ $(document).ready(function() {
 
 	// クリアの場合
 	$("#clearBtn").on('click', function() {
-		// show the queryContainer
-		// $("#queryContainer").css("display", "block");
 		// hide the detailContains
 		$("#queryInput").prop("disabled", false);
 		$("#queryInput").val('');
 		$("#detailContains").css("display", "none");
-
 	});
-
 
 });
